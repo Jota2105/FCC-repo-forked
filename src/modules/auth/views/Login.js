@@ -84,7 +84,7 @@ const Login = () => {
             id_usuario: response.data.id_usuario,
             modulo: "Login",
             operacion: "Iniciar Sesión",
-            detalle: `Usuario ${response.data.id_usuario} inició sesión a las ${ecuadorTime}`
+            detalle: `Usuario ${response.data.nombre_usuario} inició sesión a las ${ecuadorTime}`
           };
           await createAuditoria(data_auditoria);
           console.log('Auditoría de inicio de sesión creada con éxito');
