@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 import { DateInput, TextInput, PhoneInput, AutocompleteInput, FileInput, TextareaInput} from '../../../components/Inputs';
 import {matchIsValidTel}  from "mui-tel-input";
 import {steps, tipoIdentificacion, tiposSangre, genderOptions, parentescos, paises} from '../../../components/data/Data';
-import {createAuditoria,detalle_data,} from "../../../services/auditoriaServices";
+import { logAuditAction } from "../../../services/auditoriaServices";
 import {getCurrentUserId} from "../../../utils/userUtils";
 import "dayjs/locale/en-gb";
 
@@ -313,15 +313,7 @@ const ModalAddPaciente = ({ open, onClose, onPacienteAdded }) => {
             fecha_modificacion: new Date().toISOString()
           };
 
-          const auditData = {
-            id_usuario: loggedInUserId,
-            modulo: "Paciente",
-            operacion: "CREAR",
-            detalle: JSON.stringify(detailedDescription),
-            fecha: dayjs().format('YYYY-MM-DD')
-          };
-
-          await createAuditoria(auditData);
+          await logAuditAction('CREAR_PACIENTE', detailedDescription);
           console.log('Auditoría creada con éxito');
         } catch (error) {
           console.error('Error al crear auditoría:', error);

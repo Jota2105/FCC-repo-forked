@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Step, StepLabel, Stepper, Typography, Modal, Grid, Button, Container, Box, Alert } from "@mui/material";
 import { updatePaciente } from "../../../services/pacientesServices";
-import { createAuditoria, generateAuditData } from "../../../services/auditoriaServices";
+import { logAuditAction } from "../../../services/auditoriaServices";
 import { getCurrentUserId } from '../../../utils/userUtils';
 import dayjs from "dayjs";
 import { DateInput, TextInput, PhoneInput, AutocompleteInput, FileInput, TextareaInput } from '../../../components/Inputs';
@@ -250,36 +250,11 @@ const ModalEditPaciente = ({ open, onClose, pacienteData, onPacienteUpdated }) =
           const loggedInUserId = getCurrentUserId();
           console.log('Current user ID:', loggedInUserId);
           
-          if (!loggedInUserId) {
-            throw new Error('No user logged in');
-          }
-
-          // Create detailed audit description using paciente instead of response.data
-          const detailedDescription = {
-            accion: "EDITAR",
-            tabla: 'paciente',
-            id_registro: paciente.id_paciente,
-            datos_modificados: {
-              estado_anterior: pacienteData,
-              estado_nuevo: paciente,
-              detalles_paciente: {
-                nombre: paciente.nombre_paciente,
-                apellidos: paciente.apellidos_paciente,
-                dni: paciente.dni_paciente,
-                email: paciente.email_paciente
-              }
-            },
-            fecha_modificacion: new Date().toISOString()
+          const auditDetails = {
+            datosAnteriores: pacienteData,
+            datosNuevos: paciente
           };
-
-          const auditData = generateAuditData(
-            loggedInUserId,
-            "Paciente",
-            "EDITAR",
-            JSON.stringify(detailedDescription)
-          );
-
-          await createAuditoria(auditData);
+          await logAuditAction('ACTUALIZAR_PACIENTE', auditDetails);
           console.log('Auditoría creada con éxito');
         } catch(error) {
           console.error('Error al crear auditoría:', error);

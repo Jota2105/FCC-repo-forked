@@ -15,8 +15,7 @@ import ModalAddPaciente from '../components/modalAddPaciente';
 import ModalEditPaciente from '../components/modalEditPaciente';
 import BuscarPaciente from '../components/buscarPaciente';
 import { deleteLogicalPaciente, getPaciente, getPacientes } from '../../../services/pacientesServices';
-import { createAuditoria, generateSqlQueries, generateAuditData } from "../../../services/auditoriaServices";
-import { getCurrentUserId } from '../../../utils/userUtils';
+import { logAuditAction } from "../../../services/auditoriaServices";
 import "dayjs/locale/en-gb";
 import dayjs from 'dayjs';
 dayjs.locale("en-gb"); // Set dayjs locale to British English
@@ -30,8 +29,8 @@ const Paciente = () => {
   const [alertOpen, setAlertOpen] = React.useState(false); // Controls the alert dialog
   const [editModalOpen, setEditModalOpen] = useState(false); // Controls the "Edit Patient" modal
   const [selectedPaciente, setSelectedPaciente] = useState(null); // Stores the selected patient for editing
-  const [selectedStatePaciente, setSelectedStatePaciente] = useState(null); // Stores the state of the selected patient
-  const [idPaciente, setIdPaciente] = React.useState(''); // Stores the ID of the patient to be deleted
+  const [pacienteToDelete, setPacienteToDelete] = useState(null); // Stores the patient object for the delete operation
+  const [selectedStatePaciente, setSelectedStatePaciente] = useState(null); // Stores the state of the selected patient for the dialog message
   const [filterCriteria, setFilterCriteria] = useState({ name: '', activeOnly: true }); // Stores search and filter criteria
   const [successAlert, setSuccessAlert] = useState(false); // Controls the success alert
   const [errorAlert, setErrorAlert] = useState(false); // Controls the error alert
@@ -95,61 +94,20 @@ const Paciente = () => {
     setSelectedPaciente(paciente);
     setEditModalOpen(true);
   };
+
+  // Step 1 of delete: Get patient data and open confirmation dialog
   const handleDelete = async (id) => {
     try {
-      setIdPaciente(id);
       const paciente = await getPaciente(id);
+      setPacienteToDelete(paciente);
       setSelectedStatePaciente(paciente.estado_paciente);
-      
-      const loggedInUserId = getCurrentUserId();
-      console.log('Current user ID:', loggedInUserId);
-      console.log('LocalStorage data:', localStorage.getItem('user'));
-      
-      if (!loggedInUserId) {
-        throw new Error('No user logged in');
-      }
-      
-      // Fix: Reverse the action logic
-      const action = paciente.estado_paciente ? "DESACTIVAR" : "ACTIVAR";
-      const detailedDescription = {
-        accion: action,
-        tabla: 'paciente',
-        id_registro: paciente.id_paciente,
-        datos_modificados: {
-          estado_anterior: paciente.estado_paciente,
-          estado_nuevo: !paciente.estado_paciente,
-          detalles_paciente: {
-            nombre: paciente.nombre_paciente,
-            apellidos: paciente.apellidos_paciente,
-            dni: paciente.dni_paciente,
-            email: paciente.email_paciente
-          }
-        },
-        fecha_modificacion: new Date().toISOString()
-      };
-
-      // Prepare data for SQL query
-      const queryData = {
-        ...paciente,
-        tabla: 'paciente',
-        schema: 'fcc_historiaclinica'
-      };
-
-      // Generate audit data with enhanced detail
-      const auditData = generateAuditData(
-        loggedInUserId,
-        "Paciente",
-        action,
-        JSON.stringify(detailedDescription)
-      );
-
-      await createAuditoria(auditData);
       handleAlertOpen();
     } catch (error) {
-      console.error("Error al registrar auditoría:", error);
+      console.error("Error preparing patient for deletion:", error);
       setErrorAlert(true);
     }
   };
+
   // Open "Add Patient" modal
   const handleModalOpen = () => {
     setModalOpen(true);
@@ -168,15 +126,45 @@ const Paciente = () => {
   // Close alert dialog
   const handleAlertClose = () => {
     setAlertOpen(false);
+    setPacienteToDelete(null);
   };
 
-  // Complete delete action
+  // Step 2 of delete: Complete the action after confirmation
   const handleCompleteDelete = async () => {
-    const id = idPaciente;
-    await deleteLogicalPaciente(id);
-    console.log('Deleting', id);
-    fetchPacientes();
-    handleAlertClose();
+    if (!pacienteToDelete) return;
+
+    try {
+      // Perform the logical delete
+      await deleteLogicalPaciente(pacienteToDelete.id_paciente);
+
+      // Log the audit action AFTER the operation is successful
+      const action = pacienteToDelete.estado_paciente ? "DESACTIVAR_PACIENTE" : "ACTIVAR_PACIENTE";
+      const detailedDescription = {
+        accion: action,
+        tabla: 'paciente',
+        id_registro: pacienteToDelete.id_paciente,
+        datos_modificados: {
+          estado_anterior: pacienteToDelete.estado_paciente,
+          estado_nuevo: !pacienteToDelete.estado_paciente,
+          detalles_paciente: {
+            nombre: pacienteToDelete.nombre_paciente,
+            apellidos: pacienteToDelete.apellidos_paciente,
+            dni: pacienteToDelete.dni_paciente,
+            email: pacienteToDelete.email_paciente
+          }
+        },
+        fecha_modificacion: new Date().toISOString()
+      };
+
+      await logAuditAction(action, detailedDescription);
+
+      // Refresh data and close dialog
+      fetchPacientes();
+      handleAlertClose();
+    } catch (error) {
+      console.error("Error completing deletion or audit:", error);
+      setErrorAlert(true);
+    }
   };
 
   // Handle search action
