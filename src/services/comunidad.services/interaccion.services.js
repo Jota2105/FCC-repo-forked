@@ -14,6 +14,17 @@ class InteraccionService  {
       return res;
     }
 
+    async findByPersonaId(idPersona) {
+      const res = await models.Interaccion.findAll({
+        include: [{
+          model: models.Persona,
+          as: 'personas',
+          where: { id: idPersona }
+        }]
+      });
+      return res;
+    }
+
     async create(data) {
       const res = await models.Interaccion.create(data);
       return res;

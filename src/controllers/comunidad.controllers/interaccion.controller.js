@@ -51,6 +51,16 @@ const _delete = async (req, res) => {
     }
 }
 
+const getByPersonaId = async (req, res) => {
+    try {
+        const { idPersona } = req.params;
+        const response = await service.findByPersonaId(idPersona);
+        res.json(response);
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+}
+
 module.exports = {
-    create, get, getById, update, _delete
+    create, get, getById, update, _delete, getByPersonaId
 };
