@@ -1,0 +1,123 @@
+const express = require('express');
+const router = express.Router();
+const interaccionController = require('../../controllers/comunidad.controllers/interaccion.controller');
+
+/**
+ * @swagger
+ * tags:
+ *   name: Interacciones
+ *   description: Operaciones relacionadas con las interacciones
+ */
+
+/**
+ * @swagger
+ * /api/fcc/interaccion:
+ *   get:
+ *     summary: Obtiene todas las interacciones
+ *     tags: [Interacciones]
+ *     responses:
+ *       200:
+ *         description: Lista de interacciones
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Interaccion'
+ */
+router.get('/', interaccionController.get);
+
+/**
+ * @swagger
+ * /api/fcc/interaccion/{id}:
+ *   get:
+ *     summary: Obtiene una interacción por ID
+ *     tags: [Interacciones]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la interacción
+ *     responses:
+ *       200:
+ *         description: Interacción encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Interaccion'
+ *       404:
+ *         description: Interacción no encontrada
+ */
+router.get('/:id', interaccionController.getById);
+
+/**
+ * @swagger
+ * /api/fcc/interaccion:
+ *   post:
+ *     summary: Crea una nueva interacción
+ *     tags: [Interacciones]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Interaccion'
+ *     responses:
+ *       201:
+ *         description: Interacción creada exitosamente
+ *       400:
+ *         description: Datos de entrada inválidos
+ */
+router.post('/', interaccionController.create);
+
+/**
+ * @swagger
+ * /api/fcc/interaccion/{id}:
+ *   put:
+ *     summary: Actualiza una interacción existente
+ *     tags: [Interacciones]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la interacción
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Interaccion'
+ *     responses:
+ *       200:
+ *         description: Interacción actualizada exitosamente
+ *       404:
+ *         description: Interacción no encontrada
+ */
+router.put('/:id', interaccionController.update);
+
+/**
+ * @swagger
+ * /api/fcc/interaccion/{id}:
+ *   delete:
+ *     summary: Elimina una interacción
+ *     tags: [Interacciones]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la interacción
+ *     responses:
+ *       200:
+ *         description: Interacción eliminada exitosamente
+ *       404:
+ *         description: Interacción no encontrada
+ */
+router.delete('/:id', interaccionController._delete);
+
+module.exports = router;
