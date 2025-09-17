@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { login } from '../../../services/authServices';
 import * as authService from '../../../services/authServices';
 import './login.css';
-import { createAuditoria } from '../../../services/auditoriaServices'; // Import the auditoria service
+import { logAuditAction } from '../../../services/auditoriaServices';
 
 const SuccessCheck = () => (
   <Box 
@@ -78,15 +78,8 @@ const Login = () => {
         setAlertSeverity("success");
         setOpenAlert(true);
         setLoginSuccess(true);
-  // Registro de auditoría de inicio de sesión
-        try {
-          let data_auditoria = {
-            id_usuario: response.data.id_usuario,
-            modulo: "Login",
-            operacion: "Iniciar Sesión",
-            detalle: `Usuario ${response.data.nombre_usuario} inició sesión a las ${ecuadorTime}`
-          };
-          await createAuditoria(data_auditoria);
+  try {
+          await logAuditAction('INICIAR_SESION', { usuario: response.data });
           console.log('Auditoría de inicio de sesión creada con éxito');
         } catch (error) {
           console.error('Error al crear auditoría de inicio de sesión:', error);
@@ -122,15 +115,7 @@ const Login = () => {
     console.log('Logout time (Ecuador):', ecuadorTime);
     
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      let data_auditoria = {
-        id_usuario: user.id_usuario,
-        modulo: "Login",
-        operacion: "Cerrar Sesión",
-        detalle: `Usuario ${user.id_usuario} cerró sesión a las ${ecuadorTime}`,
-        hora_salida: ecuadorTime
-      };
-      await createAuditoria(data_auditoria);
+      await logAuditAction('CERRAR_SESION', { motivo: 'Llamada a handleLogout local en Login.js.' });
       console.log('Auditoría de cierre de sesión creada con éxito');
     } catch (error) {
       console.log('Error al crear auditoría de cierre de sesión:', error);
@@ -157,15 +142,7 @@ useEffect(() => {
     console.log('Window closed at (Ecuador):', ecuadorTime);
     
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      let data_auditoria = {
-        id_usuario: user.id_usuario,
-        modulo: "Login",
-        operacion: "Cerrar Sesión",
-        detalle: `Usuario ${user.id_usuario} cerró la ventana a las ${ecuadorTime}`,
-        hora_salida: ecuadorTime
-      };
-      await createAuditoria(data_auditoria);
+      await logAuditAction('CERRAR_SESION', { motivo: 'El usuario cerró la pestaña o el navegador en la página de login.' });
       console.log('Auditoría de cierre de ventana creada con éxito');
     } catch (error) {
       console.log('Error al crear auditoría de cierre de ventana:', error);
