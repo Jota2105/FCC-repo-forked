@@ -50,7 +50,15 @@ const getPersonasByInteraccion = (idInteraccion) => {
   return axios.get(`${API_URL}/persona/interaccion/${idInteraccion}`);
 };
 
-export default {
+const deletePersona = (id) => {
+  return axios.delete(`${API_URL}/persona/${id}`);
+};
+
+const getPersonaById = (id) => {
+  return axios.get(`${API_URL}/persona/${id}`);
+};
+
+const comunidadService = {
   getCantones,
   getParroquias,
   getProvincias,
@@ -63,4 +71,8 @@ export default {
   getInteraccionById,
   updateInteraccion,
   getPersonasByInteraccion,
+  deletePersona,
+  getPersonaById,
 };
+
+export default comunidadService;
