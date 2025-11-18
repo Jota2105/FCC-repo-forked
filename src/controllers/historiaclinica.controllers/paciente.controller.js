@@ -3,7 +3,22 @@ const service = new PacienteService();
 const { validarTelefono, validarCorreoElectronico } = require('../../utils/validations');
 const multerConfig = require('../../utils/multerConfig');
 const multer = require('multer');
-const upload = multer(multerConfig);
+
+const upload = multer(multerConfig).fields([
+    { name: 'imagen', maxCount: 1 },
+    { name: 'archivo_documentos_cedulas', maxCount: 1 },
+    { name: 'archivo_certificado_medico', maxCount: 1 }
+]);
+
+const fileUpload = async (req, res, next) => {
+    upload(req, res, function (error) {
+        if (error) {
+            res.status(400).json({ success: false, message: error.message });
+        } else {
+            return next();
+        }
+    });
+};
 
 const create = async (req, res) => {
   try {
@@ -106,24 +121,11 @@ const _delete = async (req, res) => {
 }
 
 module.exports = {
-  create: [
-    upload.fields([
-      { name: 'imagen', maxCount: 1 },
-      { name: 'archivo_documentos_cedulas', maxCount: 1 },
-      { name: 'archivo_certificado_medico', maxCount: 1 }
-    ]),
-    create
-  ],
+  create,
   get,
   getById,
-  update: [
-    upload.fields([
-      { name: 'imagen', maxCount: 1 },
-      { name: 'archivo_documentos_cedulas', maxCount: 1 },
-      { name: 'archivo_certificado_medico', maxCount: 1 }
-    ]),
-    update
-  ],
+  update,
   _delete,
-  logicalDelete
+  logicalDelete,
+  fileUpload
 };
