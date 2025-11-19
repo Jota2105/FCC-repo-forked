@@ -58,7 +58,7 @@ const AddInteraccion = () => {
       personas: selectedPersonas,
     };
     comunidadService.createInteraccion(interaccion).then(() => {
-      navigate("/fcc-comunidad/interacciones", { replace: true });
+      navigate(-1);
     });
   };
 

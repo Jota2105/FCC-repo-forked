@@ -117,7 +117,7 @@ const PersonaDetalleView = () => {
           variant="contained"
           color="primary"
           sx={{ mt: 3 }}
-          onClick={() => navigate('/fcc-comunidad/personas')}
+          onClick={() => navigate(-1)}
         >
           Volver a Personas
         </Button>

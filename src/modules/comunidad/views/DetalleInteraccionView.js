@@ -148,7 +148,7 @@ const DetalleInteraccion = () => {
           variant="contained"
           color="primary"
           sx={{ mt: 3 }}
-          onClick={() => navigate('/fcc-comunidad/interacciones')}
+          onClick={() => navigate(-1)}
         >
           Volver a Interacciones
         </Button>

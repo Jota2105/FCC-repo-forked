@@ -80,7 +80,7 @@ const AddPersona = () => {
       id_tipo_persona: selectedTipoPersona,
     };
     comunidadService.createPersona(persona).then(() => {
-      navigate("/fcc-comunidad/personas", { replace: true });
+      navigate(-1);
     });
   };
 

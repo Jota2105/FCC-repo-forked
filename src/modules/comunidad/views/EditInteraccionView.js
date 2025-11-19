@@ -71,7 +71,7 @@ const EditInteraccion = () => {
       personas: selectedPersonas,
     };
     comunidadService.updateInteraccion(id, interaccion).then(() => {
-      navigate("/fcc-comunidad/interacciones");
+      navigate(-1);
     });
   };
 
