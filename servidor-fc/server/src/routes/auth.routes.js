@@ -1,7 +1,7 @@
 const express = require('express'); 
 const router = express.Router();
 const { validateAndReturnUserData, verifyToken } = require('../middleware/verifyToken');
-const { changePassword } = require('../controllers/auth.controller');
+const { changePassword } = require('../controllers/historiaclinica.controllers/usuario.controller');
 
 /**
  * @swagger

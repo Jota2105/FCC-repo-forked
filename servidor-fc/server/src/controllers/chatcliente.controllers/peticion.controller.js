@@ -1,24 +1,11 @@
-const UsuarioService = require('../../services/historiaclinica.services/usuario.service');
-const service = new UsuarioService();
+const PeticionService = require('../../services/chatcliente.services/peticion.service');
+const service = new PeticionService();
+
 
 const create = async ( req, res ) => {
     try { 
-        console.log(req.body);
-        req.body.password_usuario = await service.encryptPassword(req.body.password_usuario);
-
         const response = await service.create(req.body);
         res.json({ success: true, data: response});
-    } catch (error) {
-        res.status(500).send({ success: false, message: error.message });
-    }
-}
-
-const login = async ( req, res ) => {
-    try {
-        const { correo_usuario, password_usuario } = req.body;
-        console.log(correo_usuario, password_usuario);
-        const response = await service.login(correo_usuario, password_usuario);
-        res.json(response);
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });
     }
@@ -64,19 +51,6 @@ const _delete = async (req, res) => {
     }
 }
 
-const changePassword = async (req, res, next) => {
-    try {
-        const { user } = req.user;
-        const { oldPassword, newPassword } = req.body;
-        const result = await service.changePassword(user, oldPassword, newPassword);
-        res.json(result);
-    } catch (error) {
-        next(error);
-    }
-};
-
 module.exports = {
-    create, get, getById, update, _delete, login, changePassword
+    create, get, getById, update, _delete
 };
-
-
